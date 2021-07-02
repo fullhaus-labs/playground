@@ -1,0 +1,12 @@
+{
+  "extends": "@tsconfig/node16",
+  "compilerOptions": {
+    "outDir": "dist",
+    "types": ["node"],
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "composite": true
+  },
+  "include": ["scripts"],
+  "files": ["gulpfile.ts"]
+}

@@ -1,0 +1,3 @@
+---
+'*.ts': node_modules/.bin/eslint --fix --cache --format pretty
+'*.{json,yml}': node_modules/.bin/prettier --write --loglevel warn
