@@ -1,4 +1,5 @@
 import execa from 'execa';
+import path from 'path';
 
 import type { ExecaChildProcess, Options as _ExecaOptions } from 'execa';
 
@@ -38,15 +39,28 @@ export interface Execa {
   node: NodeExeca;
 }
 
-export type MakeRootExeca = () => Execa;
+interface MakeExecaParams {
+  cwd?: string;
+}
 
-export const makeRootExeca: MakeRootExeca = () => ({
+type MakeExeca = (params?: MakeExecaParams) => Execa;
+
+const makeExeca: MakeExeca = ({ cwd } = {}) => ({
   binary: {
     global: (binary, args, options) =>
-      execa(binary, args, extendExecaOptions({ ...options })),
+      execa(binary, args, extendExecaOptions({ cwd, ...options })),
     local: (binary, args, options) =>
-      execa(binary, args, extendLocalExecaOptions({ ...options }))
+      execa(binary, args, extendLocalExecaOptions({ cwd, ...options }))
   },
   node: (scriptPath, args, options) =>
-    execa.node(scriptPath, args, extendExecaOptions({ ...options }))
+    execa.node(scriptPath, args, extendExecaOptions({ cwd, ...options }))
 });
+
+export type MakeRootExeca = () => Execa;
+
+export const makeRootExeca: MakeRootExeca = () => makeExeca();
+
+export type MakePackageExeca = (...packageNameComponents: string[]) => Execa;
+
+export const makePackageExeca: MakePackageExeca = (...packageNameComponents) =>
+  makeExeca({ cwd: path.join('packages', ...packageNameComponents) });

@@ -8,5 +8,6 @@
     "composite": true
   },
   "include": ["scripts"],
-  "files": ["gulpfile.ts"]
+  "files": ["gulpfile.ts"],
+  "references": [{ "path": "packages/backend-api" }]
 }
