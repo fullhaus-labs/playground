@@ -10,6 +10,7 @@ import {
 import { parse as parseQuerystring } from 'qs';
 
 import type { FastifyInstance, HTTPMethods } from 'fastify';
+import type { ApolloServer } from 'backend-api/apollo';
 import type { PrismaClient } from 'backend-api/prisma';
 import type { WinstonLogger } from 'backend-api/winston';
 import type { Lib } from 'backend-api/lib';
@@ -20,6 +21,7 @@ export type FastifyServer = Omit<FastifyInstance, 'listen'> & {
 };
 
 export interface CreateFastifyServerParams {
+  apollo: ApolloServer;
   prisma: PrismaClient;
   winston: WinstonLogger;
   lib: Lib;
@@ -31,6 +33,7 @@ export type CreateFastifyServer = (
 ) => FastifyServer;
 
 export const createFastifyServer: CreateFastifyServer = ({
+  apollo,
   winston,
   lib,
   env
@@ -102,7 +105,8 @@ export const createFastifyServer: CreateFastifyServer = ({
       url: '/',
       schema: makeFastifySchema(),
       handler: async () => ({ root: true })
-    });
+    })
+    .register(apollo.createHandler());
 
   const listenFn = instance.listen.bind(instance);
 

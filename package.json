@@ -20,6 +20,12 @@
     "test:watch": "gulp *-tests:test:watch"
   },
   "devDependencies": {
+    "@graphql-cli/codegen": "1.17.25",
+    "@graphql-codegen/cli": "1.21.6",
+    "@graphql-codegen/typescript": "1.22.4",
+    "@graphql-codegen/typescript-generic-sdk": "1.17.14",
+    "@graphql-codegen/typescript-operations": "1.18.3",
+    "@graphql-codegen/typescript-resolvers": "1.19.5",
     "@tsconfig/node16": "1.0.1",
     "@types/deep-equal": "1.0.1",
     "@types/gulp": "4.0.8",
@@ -40,6 +46,8 @@
     "eslint-plugin-prettier": "3.4.0",
     "eslint-plugin-promise": "5.1.0",
     "execa": "5.1.1",
+    "graphql-cli": "4.1.0",
+    "graphql-config": "3.3.0",
     "gulp": "4.0.2",
     "husky": "7.0.0",
     "jest": "27.0.6",

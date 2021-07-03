@@ -12,6 +12,13 @@ const generateBackendAPIPrismaClient: TaskFunction = async () => {
 };
 generateBackendAPIPrismaClient.displayName = 'backend-api:prisma';
 
+const generateBackendAPIGraphQLTypes: TaskFunction = async () => {
+  const backendAPI = makePackageExeca('backend-api');
+
+  await backendAPI.binary.local('graphql', ['codegen']);
+};
+generateBackendAPIGraphQLTypes.displayName = 'backend-api:graphql';
+
 const compileBackendAPIProject: TaskFunction = async () => {
   const backendAPI = makePackageExeca('backend-api');
 
@@ -64,6 +71,15 @@ const removeBackendAPIDistFolder: TaskFunction = async () => {
 };
 removeBackendAPIDistFolder.displayName = 'backend-api:rm:dist';
 
+const removeBackendAPIGraphQLTypes: TaskFunction = async () => {
+  const backendAPI = makePackageExeca('backend-api');
+
+  await backendAPI.binary.local('rimraf', [
+    path.join('src', 'apollo', 'schema', 'modules', 'resolvers.gen.ts')
+  ]);
+};
+removeBackendAPIGraphQLTypes.displayName = 'backend-api:rm:graphql';
+
 const removeBackendAPIPrismaClient: TaskFunction = async () => {
   const backendAPI = makePackageExeca('backend-api');
 
@@ -72,6 +88,22 @@ const removeBackendAPIPrismaClient: TaskFunction = async () => {
   ]);
 };
 removeBackendAPIPrismaClient.displayName = 'backend-api:rm:prisma';
+
+const generateBackendAPITestsGraphQLTypes: TaskFunction = async () => {
+  const backendAPITests = makePackageExeca('backend-api', 'tests');
+
+  await backendAPITests.binary.local('graphql', ['codegen']);
+};
+generateBackendAPITestsGraphQLTypes.displayName = 'backend-api-tests:graphql';
+
+const removeBackendAPITestsGraphQLTypes: TaskFunction = async () => {
+  const backendAPITests = makePackageExeca('backend-api', 'tests');
+
+  await backendAPITests.binary.local('rimraf', [
+    path.join('src', 'context', 'graphql', 'sdk', 'generic-sdk.gen.ts')
+  ]);
+};
+removeBackendAPITestsGraphQLTypes.displayName = 'backend-api-tests:rm:graphql';
 
 const runBackendAPITests: TaskFunction = async () => {
   const backendAPITests = makePackageExeca('backend-api', 'tests');
@@ -142,12 +174,14 @@ lintAllStagedFiles.displayName = '*:lint-staged';
 
 export const buildBackendAPIPipeline: TaskFunction = series(
   generateBackendAPIPrismaClient,
+  generateBackendAPIGraphQLTypes,
   compileBackendAPIProject
 );
 buildBackendAPIPipeline.displayName = 'backend-api:build';
 
 export const watchBuildBackendAPIPipeline: TaskFunction = series(
   generateBackendAPIPrismaClient,
+  generateBackendAPIGraphQLTypes,
   watchBackendAPIBuild
 );
 watchBuildBackendAPIPipeline.displayName = 'backend-api:build:watch';
@@ -157,6 +191,7 @@ startBackendAPIPipeline.displayName = 'backend-api:start';
 
 export const devBackendAPIPipeline: TaskFunction = series(
   generateBackendAPIPrismaClient,
+  generateBackendAPIGraphQLTypes,
   runDevBackendAPI
 );
 devBackendAPIPipeline.displayName = 'backend-api:dev';
@@ -164,30 +199,47 @@ devBackendAPIPipeline.displayName = 'backend-api:dev';
 export const cleanBackendAPIPipeline: TaskFunction = series(
   cleanBackendAPIProject,
   removeBackendAPIDistFolder,
+  removeBackendAPIGraphQLTypes,
   removeBackendAPIPrismaClient
 );
 cleanBackendAPIPipeline.displayName = 'backend-api:clean';
 
 export const testBackendAPIPipeline: TaskFunction = series(
   generateBackendAPIPrismaClient,
+  generateBackendAPIGraphQLTypes,
+  generateBackendAPITestsGraphQLTypes,
   runBackendAPITests
 );
 testBackendAPIPipeline.displayName = 'backend-api-tests:test';
 
 export const watchTestBackendAPIPipeline: TaskFunction = series(
   generateBackendAPIPrismaClient,
+  generateBackendAPIGraphQLTypes,
+  generateBackendAPITestsGraphQLTypes,
   watchBackendAPITests
 );
 watchTestBackendAPIPipeline.displayName = 'backend-api-tests:test:watch';
 
 export const buildPipeline: TaskFunction = series(
-  parallel(series(generateBackendAPIPrismaClient)),
+  parallel(
+    series(
+      generateBackendAPIPrismaClient,
+      generateBackendAPIGraphQLTypes,
+      generateBackendAPITestsGraphQLTypes
+    )
+  ),
   compileAllProjects
 );
 buildPipeline.displayName = '*:build';
 
 export const watchBuildPipeline: TaskFunction = series(
-  parallel(series(generateBackendAPIPrismaClient)),
+  parallel(
+    series(
+      generateBackendAPIPrismaClient,
+      generateBackendAPIGraphQLTypes,
+      generateBackendAPITestsGraphQLTypes
+    )
+  ),
   watchAllProjects
 );
 watchBuildPipeline.displayName = '*:build:watch';
@@ -195,18 +247,36 @@ watchBuildPipeline.displayName = '*:build:watch';
 export const cleanPipeline: TaskFunction = series(
   cleanAllProjects,
   removeAllDistFolders,
-  parallel(series(removeBackendAPIPrismaClient))
+  parallel(
+    series(
+      removeBackendAPITestsGraphQLTypes,
+      removeBackendAPIGraphQLTypes,
+      removeBackendAPIPrismaClient
+    )
+  )
 );
 cleanPipeline.displayName = '*:clean';
 
 export const testPipeline: TaskFunction = series(
-  parallel(series(generateBackendAPIPrismaClient)),
+  parallel(
+    series(
+      generateBackendAPIPrismaClient,
+      generateBackendAPIGraphQLTypes,
+      generateBackendAPITestsGraphQLTypes
+    )
+  ),
   runAllTests
 );
 testPipeline.displayName = '*-tests:test';
 
 export const watchTestPipeline: TaskFunction = series(
-  parallel(series(generateBackendAPIPrismaClient)),
+  parallel(
+    series(
+      generateBackendAPIPrismaClient,
+      generateBackendAPIGraphQLTypes,
+      generateBackendAPITestsGraphQLTypes
+    )
+  ),
   watchAllTests
 );
 watchTestPipeline.displayName = '*-tests:test:watch';
@@ -214,8 +284,20 @@ watchTestPipeline.displayName = '*-tests:test:watch';
 export const preCommit: TaskFunction = series(
   cleanAllProjects,
   removeAllDistFolders,
-  parallel(series(removeBackendAPIPrismaClient)),
-  parallel(series(generateBackendAPIPrismaClient)),
+  parallel(
+    series(
+      removeBackendAPITestsGraphQLTypes,
+      removeBackendAPIGraphQLTypes,
+      removeBackendAPIPrismaClient
+    )
+  ),
+  parallel(
+    series(
+      generateBackendAPIPrismaClient,
+      generateBackendAPIGraphQLTypes,
+      generateBackendAPITestsGraphQLTypes
+    )
+  ),
   compileAllProjects,
   runAllTests,
   lintAllStagedFiles

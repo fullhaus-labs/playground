@@ -1,0 +1,21 @@
+---
+schema:
+  - ../src/apollo/schema/modules/*/type-defs.ts
+documents: src/graphql/schema/modules/*.test.ts
+extensions:
+  codegen:
+    overwrite: true
+    generates:
+      src/context/graphql/sdk/generic-sdk.gen.ts:
+        plugins:
+          - typescript
+          - typescript-operations
+          - typescript-generic-sdk
+        config:
+          declarationKind: interface
+          immutableTypes: true
+          useTypeImports: true
+          omitOperationSuffix: true
+          scalars:
+            NonEmptyString: string
+            EmailAddress: string

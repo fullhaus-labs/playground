@@ -11,9 +11,16 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Foo {
-  id String
+model User {
+  id           String
+  no           Int      @default(autoincrement())
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
+  emailAddress String   @map("email_address")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@id([id])
-  @@map("foos")
+  @@unique([emailAddress])
+  @@map("users")
 }

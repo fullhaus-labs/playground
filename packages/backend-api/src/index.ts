@@ -1,4 +1,5 @@
 import { createFastifyServer } from './fastify';
+import { createApolloServer } from './apollo';
 import { createPrismaClient } from './prisma';
 import { createWinstonLogger } from './winston';
 import { createTerminus } from '@godaddy/terminus';
@@ -22,7 +23,19 @@ export const start: Start = async () => {
     process.exit(1);
   }
 
+  const apollo = createApolloServer({ prisma, winston, lib });
+
+  try {
+    await apollo.start();
+    winston.info('apollo server has started');
+  } catch (error) {
+    winston.fatal('apollo server has failed to start', { error });
+
+    process.exit(1);
+  }
+
   const fastify = createFastifyServer({
+    apollo,
     prisma,
     winston,
     lib,
@@ -38,6 +51,9 @@ export const start: Start = async () => {
     signals,
     onShutdown: async () => {
       winston.info('fastify server has stopped');
+
+      await apollo.stop();
+      winston.info('apollo server has stopped');
 
       await prisma.$disconnect();
       winston.info('prisma client has disconnected');
