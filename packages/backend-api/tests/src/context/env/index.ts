@@ -24,7 +24,13 @@ export const createEnvTestContext: CreateEnvTestContext = () => {
         POSTGRES_DATABASE_NAME: 'fullhaus-tests',
         POSTGRES_DATABASE_SCHEMA: 'public',
         WINSTON_LOGGER_LEVEL: 'none',
-        NANOID_ID_LENGTH: '21'
+        NANOID_ID_LENGTH: '21',
+        BCRYPT_HASH_SALT_ROUNDS: '1',
+        JWT_SIGNATURE_ALGORITHM: 'HS256',
+        JWT_SIGNATURE_SECRET: 'secret',
+        JWT_CLAIMS_ISSUER: 'iss.fullhaus.xyz',
+        JWT_CLAIMS_AUDIENCE: 'aud.fullhaus.xyz',
+        JWT_CLAIMS_EXPIRATION_IN_SECONDS: '3600'
       });
 
       return env;

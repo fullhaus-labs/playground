@@ -1,5 +1,6 @@
 ---
 schema:
+  - src/apollo/schema/directives/*/type-defs.ts
   - src/apollo/schema/modules/*/type-defs.ts
 extensions:
   codegen:
@@ -19,6 +20,7 @@ extensions:
           scalars:
             NonEmptyString: string
             EmailAddress: string
+            JWT: string
           mappers:
             User: '@prisma/client#User'
           mapperTypeSuffix: DataModel

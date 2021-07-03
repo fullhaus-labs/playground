@@ -4,7 +4,7 @@ import type { Lib } from 'backend-api/lib';
 import type { Env } from 'backend-api/env';
 
 export interface LibTestContextBeforeAllParams {
-  env: Pick<Env, 'nanoid'>;
+  env: Pick<Env, 'nanoid' | 'bcrypt' | 'jwt'>;
 }
 
 export interface LibTestContext {

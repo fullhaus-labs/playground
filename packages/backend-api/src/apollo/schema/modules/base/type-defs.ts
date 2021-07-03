@@ -16,4 +16,5 @@ export const typeDefs = gql`
 
   scalar NonEmptyString
   scalar EmailAddress
+  scalar JWT
 `;

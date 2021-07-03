@@ -1,5 +1,6 @@
 ---
 schema:
+  - ../src/apollo/schema/directives/*/type-defs.ts
   - ../src/apollo/schema/modules/*/type-defs.ts
 documents: src/graphql/schema/modules/*.test.ts
 extensions:
@@ -19,3 +20,4 @@ extensions:
           scalars:
             NonEmptyString: string
             EmailAddress: string
+            JWT: string

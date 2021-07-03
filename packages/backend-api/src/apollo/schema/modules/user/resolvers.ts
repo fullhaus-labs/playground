@@ -71,6 +71,43 @@ export const resolvers: Resolvers = {
       }
 
       return { done: true, user };
+    },
+    findMyUser: async (_, __, context) => {
+      if (context.me === null) {
+        throw new ApolloError(
+          'graphql operation has reached unexpected state',
+          'INTERNAL_SERVER_ERROR'
+        );
+      }
+
+      let user: User | null;
+
+      try {
+        user = await context.prisma.user.findUnique({
+          where: {
+            id: context.me.userID
+          }
+        });
+      } catch (error) {
+        context.winston.error(
+          'graphql operation has reached unexpected state',
+          { error }
+        );
+
+        throw new ApolloError(
+          'graphql operation has reached unexpected state',
+          'INTERNAL_SERVER_ERROR'
+        );
+      }
+
+      if (user === null) {
+        throw new ApolloError(
+          'graphql operation has reached unexpected state',
+          'INTERNAL_SERVER_ERROR'
+        );
+      }
+
+      return { done: true, user };
     }
   }
 };

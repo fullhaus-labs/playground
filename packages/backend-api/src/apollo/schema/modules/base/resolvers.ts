@@ -1,4 +1,8 @@
-import { NonEmptyStringResolver, EmailAddressResolver } from 'graphql-scalars';
+import {
+  NonEmptyStringResolver,
+  EmailAddressResolver,
+  JWTResolver
+} from 'graphql-scalars';
 
 import type { Resolvers } from '../resolvers.gen';
 
@@ -10,5 +14,6 @@ export const resolvers: Resolvers = {
     _: () => null
   },
   NonEmptyString: NonEmptyStringResolver,
-  EmailAddress: EmailAddressResolver
+  EmailAddress: EmailAddressResolver,
+  JWT: JWTResolver
 };

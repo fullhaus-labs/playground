@@ -27,6 +27,7 @@
     "@graphql-codegen/typescript-operations": "1.18.3",
     "@graphql-codegen/typescript-resolvers": "1.19.5",
     "@tsconfig/node16": "1.0.1",
+    "@types/bcrypt": "5.0.0",
     "@types/deep-equal": "1.0.1",
     "@types/gulp": "4.0.8",
     "@types/jest": "26.0.23",

@@ -31,11 +31,17 @@ export const typeDefs = gql`
     user: User
   }
 
+  type FindMyUserData {
+    done: Boolean!
+    user: User!
+  }
+
   extend type Query {
     findAllUsers: FindAllUsersData!
     findOneUserByID(input: FindOneUserByIDArgs!): FindOneUserByIDData!
     findOneUserByEmailAddress(
       input: FindOneUserByEmailAddressArgs!
     ): FindOneUserByEmailAddressData!
+    findMyUser: FindMyUserData! @auth
   }
 `;

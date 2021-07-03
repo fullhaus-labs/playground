@@ -3,6 +3,7 @@ import { URL, URLSearchParams } from 'url';
 import path from 'path';
 
 import type { WinstonLogLevel } from '../winston';
+import type { Algorithm } from 'jsonwebtoken';
 
 export interface Env {
   node: { env: NodeJS.Environments };
@@ -10,6 +11,11 @@ export interface Env {
   prisma: { database: { url: URL } };
   winston: { logger: { level: WinstonLogLevel } };
   nanoid: { id: { length: number } };
+  bcrypt: { hash: { saltRounds: number } };
+  jwt: {
+    signature: { algorithm: Algorithm; secret: string };
+    claims: { issuer: string; audience: string; expirationInSeconds: number };
+  };
 }
 
 export type EnvVariables = Record<string, string | undefined>;
@@ -30,7 +36,13 @@ export const getEnv: GetEnv = (variables) => {
     WINSTON_LOGGER_LEVEL: str({
       choices: ['fatal', 'error', 'warn', 'info', 'debug', 'none']
     }),
-    NANOID_ID_LENGTH: num()
+    NANOID_ID_LENGTH: num(),
+    BCRYPT_HASH_SALT_ROUNDS: num(),
+    JWT_SIGNATURE_ALGORITHM: str({ choices: ['HS256', 'HS384', 'HS512'] }),
+    JWT_SIGNATURE_SECRET: str(),
+    JWT_CLAIMS_ISSUER: str(),
+    JWT_CLAIMS_AUDIENCE: str(),
+    JWT_CLAIMS_EXPIRATION_IN_SECONDS: num()
   });
 
   const prismaDatabaseURL = new URL(
@@ -60,6 +72,18 @@ export const getEnv: GetEnv = (variables) => {
     nanoid: {
       id: {
         length: parsed.NANOID_ID_LENGTH
+      }
+    },
+    bcrypt: { hash: { saltRounds: parsed.BCRYPT_HASH_SALT_ROUNDS } },
+    jwt: {
+      signature: {
+        algorithm: parsed.JWT_SIGNATURE_ALGORITHM as Algorithm,
+        secret: parsed.JWT_SIGNATURE_SECRET
+      },
+      claims: {
+        issuer: parsed.JWT_CLAIMS_ISSUER,
+        audience: parsed.JWT_CLAIMS_AUDIENCE,
+        expirationInSeconds: parsed.JWT_CLAIMS_EXPIRATION_IN_SECONDS
       }
     }
   };
