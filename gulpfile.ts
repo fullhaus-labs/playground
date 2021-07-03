@@ -1,9 +1,16 @@
 import { makeRootExeca, makePackageExeca } from './scripts/gulp/execa';
-import { series } from 'gulp';
+import { parallel, series } from 'gulp';
 
 import path from 'path';
 
 import type { TaskFunction } from 'gulp';
+
+const generateBackendAPIPrismaClient: TaskFunction = async () => {
+  const backendAPI = makePackageExeca('backend-api');
+
+  await backendAPI.binary.local('prisma', ['generate']);
+};
+generateBackendAPIPrismaClient.displayName = 'backend-api:prisma';
 
 const compileBackendAPIProject: TaskFunction = async () => {
   const backendAPI = makePackageExeca('backend-api');
@@ -56,6 +63,15 @@ const removeBackendAPIDistFolder: TaskFunction = async () => {
   await backendAPI.binary.local('rimraf', ['dist']);
 };
 removeBackendAPIDistFolder.displayName = 'backend-api:rm:dist';
+
+const removeBackendAPIPrismaClient: TaskFunction = async () => {
+  const backendAPI = makePackageExeca('backend-api');
+
+  await backendAPI.binary.local('rimraf', [
+    path.join('node_modules', '.prisma')
+  ]);
+};
+removeBackendAPIPrismaClient.displayName = 'backend-api:rm:prisma';
 
 const runBackendAPITests: TaskFunction = async () => {
   const backendAPITests = makePackageExeca('backend-api', 'tests');
@@ -125,54 +141,81 @@ const lintAllStagedFiles: TaskFunction = async () => {
 lintAllStagedFiles.displayName = '*:lint-staged';
 
 export const buildBackendAPIPipeline: TaskFunction = series(
+  generateBackendAPIPrismaClient,
   compileBackendAPIProject
 );
 buildBackendAPIPipeline.displayName = 'backend-api:build';
 
-export const watchBuildBackendAPIPipeline: TaskFunction =
-  series(watchBackendAPIBuild);
+export const watchBuildBackendAPIPipeline: TaskFunction = series(
+  generateBackendAPIPrismaClient,
+  watchBackendAPIBuild
+);
 watchBuildBackendAPIPipeline.displayName = 'backend-api:build:watch';
 
 export const startBackendAPIPipeline: TaskFunction = series(runBackendAPI);
 startBackendAPIPipeline.displayName = 'backend-api:start';
 
-export const devBackendAPIPipeline: TaskFunction = series(runDevBackendAPI);
+export const devBackendAPIPipeline: TaskFunction = series(
+  generateBackendAPIPrismaClient,
+  runDevBackendAPI
+);
 devBackendAPIPipeline.displayName = 'backend-api:dev';
 
 export const cleanBackendAPIPipeline: TaskFunction = series(
   cleanBackendAPIProject,
-  removeBackendAPIDistFolder
+  removeBackendAPIDistFolder,
+  removeBackendAPIPrismaClient
 );
 cleanBackendAPIPipeline.displayName = 'backend-api:clean';
 
-export const testBackendAPIPipeline: TaskFunction = series(runBackendAPITests);
+export const testBackendAPIPipeline: TaskFunction = series(
+  generateBackendAPIPrismaClient,
+  runBackendAPITests
+);
 testBackendAPIPipeline.displayName = 'backend-api-tests:test';
 
-export const watchTestBackendAPIPipeline: TaskFunction =
-  series(watchBackendAPITests);
+export const watchTestBackendAPIPipeline: TaskFunction = series(
+  generateBackendAPIPrismaClient,
+  watchBackendAPITests
+);
 watchTestBackendAPIPipeline.displayName = 'backend-api-tests:test:watch';
 
-export const buildPipeline: TaskFunction = series(compileAllProjects);
+export const buildPipeline: TaskFunction = series(
+  parallel(series(generateBackendAPIPrismaClient)),
+  compileAllProjects
+);
 buildPipeline.displayName = '*:build';
 
-export const watchBuildPipeline: TaskFunction = series(watchAllProjects);
+export const watchBuildPipeline: TaskFunction = series(
+  parallel(series(generateBackendAPIPrismaClient)),
+  watchAllProjects
+);
 watchBuildPipeline.displayName = '*:build:watch';
 
 export const cleanPipeline: TaskFunction = series(
   cleanAllProjects,
-  removeAllDistFolders
+  removeAllDistFolders,
+  parallel(series(removeBackendAPIPrismaClient))
 );
 cleanPipeline.displayName = '*:clean';
 
-export const testPipeline: TaskFunction = series(runAllTests);
+export const testPipeline: TaskFunction = series(
+  parallel(series(generateBackendAPIPrismaClient)),
+  runAllTests
+);
 testPipeline.displayName = '*-tests:test';
 
-export const watchTestPipeline: TaskFunction = series(watchAllTests);
+export const watchTestPipeline: TaskFunction = series(
+  parallel(series(generateBackendAPIPrismaClient)),
+  watchAllTests
+);
 watchTestPipeline.displayName = '*-tests:test:watch';
 
 export const preCommit: TaskFunction = series(
   cleanAllProjects,
   removeAllDistFolders,
+  parallel(series(removeBackendAPIPrismaClient)),
+  parallel(series(generateBackendAPIPrismaClient)),
   compileAllProjects,
   runAllTests,
   lintAllStagedFiles

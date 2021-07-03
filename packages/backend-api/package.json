@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@godaddy/terminus": "4.9.0",
+    "@prisma/client": "2.30.3",
     "envalid": "7.1.0",
     "fastify": "3.18.1",
     "json-schema": "0.3.0",

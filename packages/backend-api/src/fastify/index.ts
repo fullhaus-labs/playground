@@ -10,6 +10,7 @@ import {
 import { parse as parseQuerystring } from 'qs';
 
 import type { FastifyInstance, HTTPMethods } from 'fastify';
+import type { PrismaClient } from 'backend-api/prisma';
 import type { WinstonLogger } from 'backend-api/winston';
 import type { Lib } from 'backend-api/lib';
 import type { Env } from 'backend-api/env';
@@ -19,6 +20,7 @@ export type FastifyServer = Omit<FastifyInstance, 'listen'> & {
 };
 
 export interface CreateFastifyServerParams {
+  prisma: PrismaClient;
   winston: WinstonLogger;
   lib: Lib;
   env: Env['fastify'];

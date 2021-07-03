@@ -1,4 +1,5 @@
 import { createFastifyServer } from './fastify';
+import { createPrismaClient } from './prisma';
 import { createWinstonLogger } from './winston';
 import { createTerminus } from '@godaddy/terminus';
 import { createLib } from './lib';
@@ -10,7 +11,23 @@ export const start: Start = async () => {
   const env = getEnv(process.env);
   const lib = createLib({ env });
   const winston = createWinstonLogger({ env: env.winston });
-  const fastify = createFastifyServer({ winston, lib, env: env.fastify });
+  const prisma = createPrismaClient({ env: env.prisma });
+
+  try {
+    await prisma.$connect();
+    winston.info('prisma client has connected');
+  } catch (error) {
+    winston.fatal('prisma client has failed to connect', { error });
+
+    process.exit(1);
+  }
+
+  const fastify = createFastifyServer({
+    prisma,
+    winston,
+    lib,
+    env: env.fastify
+  });
 
   const signals: NodeJS.Signals[] = ['SIGTERM'];
   if (env.node.env === 'development') {
@@ -21,6 +38,9 @@ export const start: Start = async () => {
     signals,
     onShutdown: async () => {
       winston.info('fastify server has stopped');
+
+      await prisma.$disconnect();
+      winston.info('prisma client has disconnected');
 
       await winston.end();
     }
