@@ -57,6 +57,20 @@ const removeBackendAPIDistFolder: TaskFunction = async () => {
 };
 removeBackendAPIDistFolder.displayName = 'backend-api:rm:dist';
 
+const runBackendAPITests: TaskFunction = async () => {
+  const backendAPITests = makePackageExeca('backend-api', 'tests');
+
+  await backendAPITests.binary.local('jest');
+};
+runBackendAPITests.displayName = 'backend-api-tests:jest';
+
+const watchBackendAPITests: TaskFunction = async () => {
+  const backendAPITests = makePackageExeca('backend-api', 'tests');
+
+  await backendAPITests.binary.local('jest', ['--watch']);
+};
+watchBackendAPITests.displayName = 'backend-api-tests:jest:watch';
+
 const compileAllProjects: TaskFunction = async () => {
   const root = makeRootExeca();
 
@@ -83,10 +97,25 @@ const removeAllDistFolders: TaskFunction = async () => {
 
   await root.binary.local('rimraf', [
     'dist',
-    path.join('packages', '*', 'dist')
+    path.join('packages', '*', 'dist'),
+    path.join('packages', '*', 'tests', 'dist')
   ]);
 };
 removeAllDistFolders.displayName = '*:rm:dist';
+
+const runAllTests: TaskFunction = async () => {
+  const root = makeRootExeca();
+
+  await root.binary.local('jest');
+};
+runAllTests.displayName = '*-tests:jest';
+
+const watchAllTests: TaskFunction = async () => {
+  const root = makeRootExeca();
+
+  await root.binary.local('jest', ['--watch']);
+};
+watchAllTests.displayName = '*-tests:jest:watch';
 
 const lintAllStagedFiles: TaskFunction = async () => {
   const root = makeRootExeca();
@@ -116,6 +145,13 @@ export const cleanBackendAPIPipeline: TaskFunction = series(
 );
 cleanBackendAPIPipeline.displayName = 'backend-api:clean';
 
+export const testBackendAPIPipeline: TaskFunction = series(runBackendAPITests);
+testBackendAPIPipeline.displayName = 'backend-api-tests:test';
+
+export const watchTestBackendAPIPipeline: TaskFunction =
+  series(watchBackendAPITests);
+watchTestBackendAPIPipeline.displayName = 'backend-api-tests:test:watch';
+
 export const buildPipeline: TaskFunction = series(compileAllProjects);
 buildPipeline.displayName = '*:build';
 
@@ -128,10 +164,17 @@ export const cleanPipeline: TaskFunction = series(
 );
 cleanPipeline.displayName = '*:clean';
 
+export const testPipeline: TaskFunction = series(runAllTests);
+testPipeline.displayName = '*-tests:test';
+
+export const watchTestPipeline: TaskFunction = series(watchAllTests);
+watchTestPipeline.displayName = '*-tests:test:watch';
+
 export const preCommit: TaskFunction = series(
   cleanAllProjects,
   removeAllDistFolders,
   compileAllProjects,
+  runAllTests,
   lintAllStagedFiles
 );
 preCommit.displayName = '*:pre-commit';

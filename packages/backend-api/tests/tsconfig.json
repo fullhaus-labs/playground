@@ -1,0 +1,17 @@
+{
+  "extends": "@tsconfig/node16",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node", "jest"],
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "composite": true,
+    "baseUrl": "../..",
+    "paths": {
+      "backend-api/*": ["backend-api/src/*"]
+    }
+  },
+  "include": ["src", "../src/types"],
+  "references": [{ "path": ".." }]
+}

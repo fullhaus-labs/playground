@@ -1,0 +1,6 @@
+{
+  "projects": ["packages/*/tests"],
+  "testTimeout": 7000,
+  "slowTestThreshold": 7,
+  "reporters": ["jest-standard-reporter"]
+}

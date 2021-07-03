@@ -15,7 +15,7 @@ export type GetEnv = (variables: EnvVariables) => Env;
 
 export const getEnv: GetEnv = (variables) => {
   const parsed = cleanEnv(variables, {
-    NODE_ENV: str({ choices: ['development', 'production'] }),
+    NODE_ENV: str({ choices: ['development', 'test', 'production'] }),
     FASTIFY_SERVER_HOST: host(),
     FASTIFY_SERVER_PORT: port(),
     WINSTON_LOGGER_LEVEL: str({

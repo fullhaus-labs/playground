@@ -15,6 +15,7 @@ parserOptions:
   project:
     - tsconfig.json
     - packages/*/tsconfig.json
+    - packages/*/tests/tsconfig.json
 plugins:
   - '@typescript-eslint'
 rules:

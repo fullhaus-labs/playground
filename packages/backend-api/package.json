@@ -10,7 +10,9 @@
     "build:watch": "gulp backend-api:build:watch",
     "clean": "gulp backend-api:clean",
     "dev": "gulp backend-api:dev",
-    "start": "gulp backend-api:start"
+    "start": "gulp backend-api:start",
+    "test": "gulp backend-api-tests:test",
+    "test:watch": "gulp backend-api-tests:test:watch"
   },
   "dependencies": {
     "@godaddy/terminus": "4.9.0",

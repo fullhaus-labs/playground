@@ -1,0 +1,13 @@
+{
+  "displayName": "backend-api",
+  "preset": "ts-jest",
+  "testMatch": ["<rootDir>/src/**/*.test.ts"],
+  "testEnvironment": "node",
+  "testTimeout": 7000,
+  "slowTestThreshold": 7,
+  "setupFilesAfterEnv": ["<rootDir>/src/matchers/index.ts"],
+  "reporters": ["jest-standard-reporter"],
+  "moduleNameMapper": {
+    "^backend-api/(.+)": "<rootDir>/../src/$1"
+  }
+}

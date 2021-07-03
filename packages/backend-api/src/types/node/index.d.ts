@@ -1,6 +1,6 @@
 declare global {
   namespace NodeJS {
-    export type Environments = 'development' | 'production';
+    export type Environments = 'development' | 'test' | 'production';
   }
 }
 

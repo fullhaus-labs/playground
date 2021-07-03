@@ -9,5 +9,8 @@
   },
   "include": ["scripts"],
   "files": ["gulpfile.ts"],
-  "references": [{ "path": "packages/backend-api" }]
+  "references": [
+    { "path": "packages/backend-api" },
+    { "path": "packages/backend-api/tests" }
+  ]
 }
